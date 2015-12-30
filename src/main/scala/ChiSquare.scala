@@ -64,14 +64,6 @@ object ChiSquare {
     }
     }.map(word => (word.split(":")(0), word.split(":")(1).toDouble)).
       map(item => item.swap).sortByKey(true, 1).map(item => item.swap).saveAsTextFile("result")
-    //
-    //    //6. Write result
-    //    val pw = new PrintWriter(new File("result.txt"))
-    //    for ((k, v) <- r) {
-    //      pw.write(k + " " + v + "\n")
-    //      pw.flush();
-    //    }
-    //    pw.close()
   }
 
   def chi(a: Int, a_b: Int, a_c: Int, N: Int): Double = {
