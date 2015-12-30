@@ -10,3 +10,4 @@ However, the best result(ex: Text Categorization) will not be achieve if both po
 2. The code is not fully follow streaming and counting model and it's not stateless so global memory cache is still used.
 3. Future work may working on using Redis distributed memory cache or better(less io, less memory usage) computing method.
 
+Note that, the training data is obtained from internet, and it's already preprocessed, so the chi-square result will not show it's best quality. But it should work better with raw dataset.
