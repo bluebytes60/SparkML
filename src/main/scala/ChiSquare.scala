@@ -62,8 +62,8 @@ object ChiSquare {
       seq = seq :+ (cat + "_" + term + ":" + chi(a, a_b, a_c, N))
       seq
     }
-    }.map(word => (word.split(":")(0), word.split(":")(1).toDouble)).
-      map(item => item.swap).sortByKey(true, 1).map(item => item.swap).saveAsTextFile("result")
+    }.map(word => (word.split(":")(0), word.split(":")(1).toDouble)).reduceByKey(_ + _, 1).
+      map(item => item.swap).sortByKey(true, 1).map(item => item.swap).saveAsTextFile("Chisquare_result")
   }
 
   def chi(a: Int, a_b: Int, a_c: Int, N: Int): Double = {
