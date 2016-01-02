@@ -15,32 +15,21 @@ object ChiSquare {
     val conf = new SparkConf().setAppName("chisquare").setMaster("local[2]")
     val sc = new SparkContext(conf)
     val inputDir = sc.wholeTextFiles("data/parsed/")
-    val lines = inputDir.flatMap { case (filename, content) => content.split("\n") }.cache()
+    val data = inputDir.flatMap { case (filename, content) => content.split("\n") }.map(line => {
+      val tokons: List[String] = line.split(" ").toList
+      tokons
+    }).cache()
+
     //1. Get total frequency map
-    val Total = lines.flatMap(line => {
-      val tokons = line.split(" ")
-      var seq = new ListBuffer[String]();
-      for (a <- 1 until tokons.length) {
-        seq = seq :+ "N"
-      }
-      seq
+    val Total = data.flatMap(tokon => {
+      tokon.map(x => "N")
     }).map(word => (word, 1)).reduceByKey(_ + _, 1).cache()
     //2. Get frequency map given a term
-    val T = lines.flatMap(line => {
-      val tokons = line.split(" ")
-      var seq: List[String] = tokons.map(_.trim).toList
-      seq
-    }).map(word => (word, 1)).reduceByKey(_ + _, 1).cache().collectAsMap()
+    val T = data.flatMap(tokons => {tokons.map(x => (x, 1))}).reduceByKey(_ + _, 1).cache().collectAsMap()
     //3. Get frequency given a category
-    val C = lines.flatMap(line => {
-      val tokons = line.split(" ")
-      //count  category frequency (a+b)
-      var seq: List[String] = List(tokons(0))
-      seq
-    }).map(word => (word, 1)).reduceByKey(_ + _, 1).cache().collectAsMap()
+    val C = data.map(tokons => tokons(0)).map(word => (word, 1)).reduceByKey(_ + _, 1).cache().collectAsMap()
     //4. Get term frequency map given a term and a category
-    val T_C = lines.flatMap(line => {
-      val tokons = line.split(" ")
+    val T_C = data.flatMap(tokons => {
       //count term frequency(a+c) & category frequency (a+b)
       var seq = new ListBuffer[String]();
       for (a <- 1 until tokons.length) {
