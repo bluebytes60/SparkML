@@ -25,20 +25,20 @@ object ChiSquare {
       tokon.map(x => "N")
     }).map(word => (word, 1)).reduceByKey(_ + _, 1).cache()
     //2. Get frequency map given a term
-    val T = sc.broadcast(data.flatMap(tokons => {
+    val T = data.flatMap(tokons => {
       tokons.map(x => (x, 1))
-    }).reduceByKey(_ + _, 1).collectAsMap()).value
+    }).collectAsMap()
     //3. Get frequency given a category
     val C = data.map(tokons => tokons(0)).map(word => (word, 1)).reduceByKey(_ + _, 1).cache().collectAsMap()
     //4. Get term frequency map given a term and a category
-    val T_C = sc.broadcast(data.flatMap(tokons => {
+    val T_C = data.flatMap(tokons => {
       //count term frequency(a+c) & category frequency (a+b)
       var seq = new ListBuffer[String]();
       for (a <- 1 until tokons.length) {
         seq = seq :+ tokons(0) + "_" + tokons(a)
       }
       seq
-    }).map(word => (word, 1)).reduceByKey(_ + _, 1)).value
+    }).map(word => (word, 1)).reduceByKey(_ + _, 1)
     //5. Start to calculate Chi-square
     val N = Total.values.collect()(0)
     val V = T.keys
