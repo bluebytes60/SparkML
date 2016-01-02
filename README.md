@@ -11,3 +11,5 @@ However, the best result(ex: Text Categorization) will not be achieve if both po
 3. Future work may working on using Redis distributed memory cache or better(less io, less memory usage) computing method.
 
 Note that, the training data is obtained from internet, and it's already preprocessed, so the chi-square result will not show it's best quality. But it should work better with raw dataset.
+
+Code is disaster, will neet to improve this shit
