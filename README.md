@@ -1,5 +1,5 @@
-# sparkExcerise
-This is a repo for some spark trials
+# SparkML
+This is a repo for some spark ML trials
 
 ## Feature Selection - Chi-square function
 Chi-square function is a nice supervised feature selection technique. A chi-square function measures the relevance between a term t  and a category c. For example, we can measure the relevance of a word "water" and a category "weather". The total weight of t is the sum of its chi-square values over different categories (c1, c2, c3, ... cn). The formula is as follows:
