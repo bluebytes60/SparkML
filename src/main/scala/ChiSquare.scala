@@ -6,9 +6,9 @@ import scala.collection.parallel.mutable
 import scala.reflect.io.File
 
 /**
- * Created by bluebyte60 on 12/29/15.
- * This chi-square implementation returns a ranked list of features with corresponding chi-square value
- */
+  * Created by bluebyte60 on 12/29/15.
+  * This chi-square implementation returns a ranked list of features with corresponding chi-square value
+  */
 object ChiSquare {
 
   def main(args: Array[String]): Unit = {
@@ -54,12 +54,13 @@ object ChiSquare {
     }).map(word => (word, 1)).reduceByKey(_ + _, 1)
       .map { case (k, v) => (k.split(File.separator)(1), k.split(File.separator)(0) + File.separator + v) } //term, cat_fre
       .aggregateByKey(mutable.ParHashMap.empty[String, Int])(addToMap, mergePartitionMaps)
+
     //6. Start to calculate Chi-square
     val V = T.keys
     val categories = C.keys
     val combined = T.join(T_C)
-    val r = combined.flatMap { case (term: String, pair: Tuple2[Int, mutable.ParHashMap[String, Int]]) => {
-      var seq = new ListBuffer[Tuple2[String, Double]]();
+    val r = combined.flatMap { case (term, pair) => {
+      var seq = new ListBuffer[Tuple2[String, Double]]()
       val freqs = pair._2
       for (c <- categories) {
         var a = freqs.getOrElse(c, 0)

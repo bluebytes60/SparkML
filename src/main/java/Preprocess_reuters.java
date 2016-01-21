@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by bluebyte60 on 12/29/15.
  */
-public class Preprocess {
+public class Preprocess_reuters {
 
     public static Map<Integer, String> getMap(String line) {
         Map<Integer, String> map = new HashedMap();
