@@ -29,7 +29,8 @@ target/
 lib_managed/
 src_managed/
 project/boot/
-.history
+.hisory
 .cache
 .idea
+data/avito/database.sqlite
 
