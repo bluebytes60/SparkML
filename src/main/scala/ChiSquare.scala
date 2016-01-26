@@ -1,3 +1,4 @@
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.immutable.HashSet
@@ -11,14 +12,14 @@ import scala.reflect.io.File
   */
 object ChiSquare {
 
+
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("chisquare").setMaster("local[2]")
     val sc = new SparkContext(conf)
-    //0. Get stopword
+
     val stopf = sc.wholeTextFiles("data/stopwords/").flatMap { case (filename, content) => content.split("\r\n") }.collect().toList
     val stopwords = sc.broadcast(HashSet() ++ stopf).value
 
-    //1. Tokonization
     val inputDir = sc.textFile("data/reuters/train")
     val data = inputDir.map(line => {
       var tokons: List[String] = List("")
@@ -28,22 +29,28 @@ object ChiSquare {
           tokons = tokons :+ t
       }
       tokons
-    }).cache()
+    })
 
-    //2. Get total frequency
+    val r = Chi(data, stopwords)
+    //r.saveAsTextFile("ff")
+  }
+
+  def Chi(data: RDD[List[String]], stopwords: Set[String]): RDD[(String, Double)] = {
+
+    //1. Get total frequency
     val N = data.flatMap(tokon => {
       tokon.map(x => "N")
     }).map(word => (word, 1)).reduceByKey(_ + _, 1).values.collect()(0)
 
-    //3. Get frequency map given a term, (key: term, value: frequency)
+    //2. Get frequency map given a term, (key: term, value: frequency)
     val T = data.flatMap(tokons => {
       tokons.map(x => (x, 1))
     }).reduceByKey(_ + _, 1).filter { case (k, v) => v >= 5 }
 
-    //4. Get frequency map given a category, (key:category, value: frequency)
+    //3. Get frequency map given a category, (key:category, value: frequency)
     val C = data.map(tokons => tokons(0)).map(cat => (cat, 1)).reduceByKey(_ + _, 1).cache().collectAsMap()
 
-    //5. Get term frequency map given a term and a category, (key:term, value: Map(category, frequency))
+    //4. Get term frequency map given a term and a category, (key:term, value: Map(category, frequency))
     val T_C = data.flatMap(tokons => {
       //count term frequency(a+c) & category frequency (a+b)
       var seq = new ListBuffer[String]();
@@ -55,7 +62,7 @@ object ChiSquare {
       .map { case (k, v) => (k.split(File.separator)(1), k.split(File.separator)(0) + File.separator + v) } //term, cat_fre
       .aggregateByKey(mutable.ParHashMap.empty[String, Int])(addToMap, mergePartitionMaps)
 
-    //6. Start to calculate Chi-square
+    //5. Start to calculate Chi-square
     val V = T.keys
     val categories = C.keys
     val combined = T.join(T_C)
@@ -70,8 +77,10 @@ object ChiSquare {
       }
       seq
     }
-    }.reduceByKey(_ + _, 1).map(item => item.swap).sortByKey(true, 1).map(item => item.swap).saveAsTextFile("Chisquare_result")
+    }.reduceByKey(_ + _, 1).map(item => item.swap).sortByKey(true, 1).map(item => item.swap)
+    r
   }
+
 
   def addToMap(s: mutable.ParHashMap[String, Int], v: String): mutable.ParHashMap[String, Int] = {
     s.put(v.split(File.separator)(0), v.split(File.separator)(1).toInt)
