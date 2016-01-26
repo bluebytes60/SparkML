@@ -1,15 +1,10 @@
 package avito
 
-import org.apache.spark.mllib.classification.{SVMModel, SVMWithSGD}
+import org.apache.spark.mllib.classification.{SVMWithSGD}
 import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
 import org.apache.spark.{SparkContext, SparkConf}
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.regression.{LabeledPoint, StreamingLinearRegressionWithSGD}
-import org.apache.spark.rdd.RDD
+import org.apache.spark.mllib.regression.{LabeledPoint}
 import org.apache.spark.sql.{Row, SQLContext}
-import org.apache.spark.streaming.{Milliseconds, StreamingContext}
-
-import scala.collection.mutable
 
 /**
   * Created by bluebyte60 on 1/22/16.
@@ -36,15 +31,15 @@ object linearSVM {
 
     val data = jdbcDF.map(row => LabeledPoint.parse(toString(row)))
 
-    val splits = data.randomSplit(Array(0.6, 0.4), seed = 11L)
+    val splits = data.randomSplit(Array(0.97, 0.03), seed = 11L)
 
     val training = splits(0).cache()
 
     val test = splits(1)
 
-
     // Run training algorithm to build the model
-    val numIterations = 10000
+    val numIterations = 2000
+
     val model = SVMWithSGD.train(training, numIterations)
 
     // Clear the default threshold.
@@ -76,6 +71,9 @@ object linearSVM {
     f1Score.foreach { case (t, f) =>
       println(s"Threshold: $t, F-score: $f, Beta = 1")
     }
+
+    val auROC = metrics.areaUnderROC()
+    println("Area under ROC = " + auROC)
 
     //    // Save and load model
     //    model.save(sc, "myModelPath")

@@ -4,7 +4,6 @@ version := "1.0"
 
 scalaVersion := "2.10.4"
 
-
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "1.6.0",
   "org.apache.hadoop" % "hadoop-client" % "2.4.0" excludeAll ExclusionRule(organization = "javax.servlet"),
@@ -14,3 +13,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-dbcp2" % "2.0.1",
   "org.xerial" % "sqlite-jdbc" % "3.8.11.1"
 )
+
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+
+
