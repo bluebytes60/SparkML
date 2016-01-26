@@ -13,7 +13,6 @@ object trial {
     val searchStream = sc.textFile("/Users/bluebyte60/Desktop/avito/trainSearchStream.tsv")
     searchStream.foreach(s => println(s))
 
-
   }
 
 }
