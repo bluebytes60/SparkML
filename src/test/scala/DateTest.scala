@@ -1,5 +1,5 @@
 import avito.Util
-import avito.dao.VistHis
+import avito.dao.{VisitStream, VistHis}
 import org.scalatest.FunSuite
 
 import scala.collection.immutable.HashSet

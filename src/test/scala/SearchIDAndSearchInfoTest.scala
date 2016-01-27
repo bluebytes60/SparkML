@@ -4,7 +4,7 @@ import avito.Util
 import avito.dao.{SearchStream, SearchInfo}
 import org.scalatest.FunSuite
 
-class SearchIDAndSearchInfo extends FunSuite {
+class SearchIDAndSearchInfoTest extends FunSuite {
 
   test("Should able to parse searchStream") {
     val s = "2\t11441863\t1\t3\t0.001804\t0";
