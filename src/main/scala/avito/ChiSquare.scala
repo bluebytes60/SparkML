@@ -1,3 +1,5 @@
+package avito
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -31,11 +33,11 @@ object ChiSquare {
       tokons
     })
 
-    val r = Chi(data, stopwords)
+    val r = calculate(data, stopwords)
     //r.saveAsTextFile("ff")
   }
 
-  def Chi(data: RDD[List[String]], stopwords: Set[String]): RDD[(String, Double)] = {
+  def calculate(data: RDD[List[String]], stopwords: Set[String]): RDD[(String, Double)] = {
 
     //1. Get total frequency
     val N = data.flatMap(tokon => {
@@ -58,7 +60,7 @@ object ChiSquare {
         seq = seq :+ tokons(0) + File.separator + tokons(i) //cat_term, 1
       }
       seq
-    }).map(word => (word, 1)).reduceByKey(_ + _, 1)
+    }).map(word => (word, 1)).reduceByKey(_ + _, 1).filter { case (k, v) => k.split(File.separator).length == 2 }
       .map { case (k, v) => (k.split(File.separator)(1), k.split(File.separator)(0) + File.separator + v) } //term, cat_fre
       .aggregateByKey(mutable.ParHashMap.empty[String, Int])(addToMap, mergePartitionMaps)
 
