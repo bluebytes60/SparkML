@@ -1,8 +1,8 @@
-import avito.dao.VisitStream
+import avito.dao.ContactStream
 import org.apache.spark.{SparkContext, SparkConf}
 import org.scalatest.FunSuite
 
-class VistStreamTest extends FunSuite {
+class ContactStreamTest extends FunSuite {
   test("Test can covert viststream data") {
     val s1 = "61291\t1769215\t10847086\t2015-04-25 00:00:01.0"
     val s2 = "61291\t1769215\t9210111\t2015-04-25 00:00:23.0"
@@ -13,7 +13,10 @@ class VistStreamTest extends FunSuite {
     val sc = new SparkContext(conf)
 
     val data = sc.parallelize(List(s1, s2, s3, s4))
-    val vistStream = VisitStream.from(data)
+    val vistStream = ContactStream.from(data)
     val result = vistStream.collectAsMap()
+    assert(result.keys.size == 2)
+    assert(result("61291").size == 3)
+    assert(result("501897").size == 1)
   }
 }
