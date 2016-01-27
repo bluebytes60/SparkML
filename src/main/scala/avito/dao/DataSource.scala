@@ -1,4 +1,4 @@
-package avito
+package avito.dao
 
 import java.util
 
@@ -69,7 +69,7 @@ class DataSource(dbUrl: String, query: String, driver: String, batchSize: Int,
 //    val query = "SELECT isClick, searchID, adID, position, histctr, id from train_sample "
 //    val driver = "org.sqlite.JDBC"
 //    val batchSize = 100;
-//    val ds = new avito.DataSource(dbUrl, query, driver, 100000, null, null)
+//    val ds = new avito.dao.DataSource(dbUrl, query, driver, 100000, null, null)
 //    var count = 0;
 //    while (!ds.isTerminated()) {
 //      for (row <- ds.getData()) {

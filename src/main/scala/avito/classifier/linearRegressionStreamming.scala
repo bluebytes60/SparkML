@@ -1,12 +1,11 @@
-package avito
+package avito.classifier
 
-import java.util
-
+import avito.dao.DataSource
 import org.apache.spark.SparkConf
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.regression.{LabeledPoint, StreamingLinearRegressionWithSGD}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.{Milliseconds, Seconds, StreamingContext}
-import org.apache.spark.mllib.regression.{StreamingLinearRegressionWithSGD, LabeledPoint}
+import org.apache.spark.streaming.{Milliseconds, StreamingContext}
 
 import scala.collection.mutable
 

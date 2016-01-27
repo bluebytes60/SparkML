@@ -1,5 +1,5 @@
 import avito.Util
-import avito.dao.ContactHis
+import avito.features.ContactHis
 import org.scalatest.FunSuite
 
 import scala.collection.immutable.HashSet

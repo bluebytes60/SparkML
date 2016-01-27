@@ -1,4 +1,4 @@
-package avito.dao
+package avito.features
 
 import java.util.Date
 
@@ -11,7 +11,7 @@ import scala.collection.parallel.mutable
   * Created by bluebyte60 on 1/27/16.
   */
 object ContactStream {
-  def from(data: RDD[String]): RDD[(String, mutable.ParHashSet[ContactHis])] = {
+  def parse(data: RDD[String]): RDD[(String, mutable.ParHashSet[ContactHis])] = {
     val r = data.map(line => {
       val features = line.split("\t")
       new ContactStream(features(0), features(1), features(2), Util.parseSearchDate(features(3)))

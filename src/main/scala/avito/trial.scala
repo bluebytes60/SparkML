@@ -1,6 +1,7 @@
 package avito
 
 import avito.dao.{SearchStream, SearchInfo}
+import avito.features.ChiSquare
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 

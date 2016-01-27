@@ -1,10 +1,10 @@
-package avito
+package avito.classifier
 
-import org.apache.spark.mllib.classification.{SVMWithSGD}
+import org.apache.spark.mllib.classification.SVMWithSGD
 import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
-import org.apache.spark.{SparkContext, SparkConf}
-import org.apache.spark.mllib.regression.{LabeledPoint}
+import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.{SparkConf, SparkContext}
 
 /**
   * Created by bluebyte60 on 1/22/16.
