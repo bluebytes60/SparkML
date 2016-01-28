@@ -13,3 +13,8 @@ d is the document frequency of ~t in ~c.
 
 1. The code use spark for chi-square value calculation.
 2. The code should be scalable in muilple machine
+
+## Avito Context Ad Clicks
+A kaggle contest in 2015 
+https://www.kaggle.com/c/avito-context-ad-clicks/data
+Not finished yet
