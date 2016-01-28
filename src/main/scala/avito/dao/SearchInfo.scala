@@ -3,12 +3,20 @@ package avito.dao
 import java.util.Date
 
 import avito.Util
+import org.apache.spark.rdd.RDD
 
 import scala.util.matching.Regex
 
 /**
   * Created by bluebyte60 on 1/27/16.
   */
+
+object SearchInfo {
+  def parse(data: RDD[String]): RDD[SearchStream] = {
+    val r = data.filter(line => line.split("\t").length >= 9).map(line => new SearchStream(line))
+    r
+  }
+}
 
 class SearchInfo(s: String) {
   val pattern = new Regex("([0-9]+):")
@@ -22,9 +30,9 @@ class SearchInfo(s: String) {
   var CategoryID = ""
   var SearchParams = Set[String]()
 
-  parseSearchInfo(s)
+  parse(s)
 
-  def parseSearchInfo(s: String) = {
+  def parse(s: String) = {
     if (s.length > 0) {
       val data = s.split("\t")
       if (data.length >= 1) SearchID = data(0)
@@ -44,6 +52,5 @@ class SearchInfo(s: String) {
     if (s == null || s.length == 0) Set()
     else pattern.findAllIn(s).map(x => x.replaceAll(":", "")).toSet
   }
-
 
 }

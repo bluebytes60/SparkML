@@ -1,5 +1,6 @@
 package avito.features
 
+import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -13,6 +14,14 @@ import scala.reflect.io.File
   * This chi-square implementation returns a ranked list of features with corresponding chi-square value
   */
 object ChiSquare {
+
+  def readFromfile(filePath: String, sc: SparkContext, topK: Int): Map[String, Double] = {
+    val inputFile = sc.textFile(filePath)
+    val r = inputFile.map(line => line.replace("(", "").replace(")", "").split(","))
+      .map(features => (features(0), features(1).toDouble))
+      .map(item => item.swap).sortByKey(false, 1).map(item => item.swap)
+    r.take(topK).toMap
+  }
 
 
   def main(args: Array[String]): Unit = {

@@ -1,4 +1,4 @@
-import avito.features.ContactStream
+import avito.dao.ContactStream
 import org.apache.spark.{SparkContext, SparkConf}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 

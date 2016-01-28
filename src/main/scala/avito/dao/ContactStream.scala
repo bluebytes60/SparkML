@@ -1,4 +1,4 @@
-package avito.features
+package avito.dao
 
 import java.util.Date
 
@@ -12,10 +12,8 @@ import scala.collection.parallel.mutable
   */
 object ContactStream {
   def parse(data: RDD[String]): RDD[(String, mutable.ParHashSet[ContactHis])] = {
-    val r = data.map(line => {
-      val features = line.split("\t")
-      new ContactStream(features(0), features(1), features(2), Util.parseSearchDate(features(3)))
-    }).map(vistStream => (vistStream.UserID, new ContactHis(vistStream.AdID, vistStream.ViewDate)))
+    val r = data.filter(line => line.split("\t").length >= 4).map(line => new ContactStream(line))
+      .map(vistStream => (vistStream.UserID, new ContactHis(vistStream.AdID, vistStream.ViewDate)))
       .aggregateByKey(mutable.ParHashSet.empty[ContactHis])(addToSet, mergePartitionSet)
     r
   }
@@ -30,11 +28,12 @@ object ContactStream {
   }
 }
 
-class ContactStream(userID: String, iPID: String, adID: String, viewDate: Date) {
-  val UserID = userID
-  val IPID = iPID
-  val AdID = adID
-  val ViewDate = viewDate
+class ContactStream(s: String) {
+  val features = s.split("\t")
+  val UserID = features(0)
+  val IPID = features(1)
+  val AdID = features(2)
+  val ViewDate = Util.parseSearchDate(features(3))
 }
 
 class ContactHis(AdsID: String, date: Date) extends java.io.Serializable {

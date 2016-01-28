@@ -1,8 +1,19 @@
 package avito.dao
 
+import org.apache.spark.rdd.RDD
+
+import scala.collection.parallel.mutable
+
 /**
   * Created by bluebyte60 on 1/27/16.
   */
+
+object SearchStream {
+  def parse(data: RDD[String]): RDD[SearchStream] = {
+    val r = data.filter(line => line.split("\t").length > 4).map(line => new SearchStream(line))
+    r
+  }
+}
 
 class SearchStream(s: String) {
   val data = s.split("\t")
