@@ -15,12 +15,26 @@ object SearchStream {
   }
 }
 
-class SearchStream(s: String) {
-  val data = s.split("\t")
-  val SearchID = data(0)
-  val AdID = data(1)
-  val Position = data(2)
-  val ObjectType = data(3)
-  val HisCTR = data(4)
-  val isClick = data(5)
+class SearchStream extends java.io.Serializable{
+  var SearchID = ""
+  var AdID = ""
+  var Position = ""
+  var ObjectType = ""
+  var HisCTR = ""
+  var isClick = ""
+
+  def this(s: String) {
+    this()
+    parse(s)
+  }
+
+  def parse(s: String) {
+    val data = s.split("\t")
+    SearchID = data(0)
+    AdID = data(1)
+    Position = data(2)
+    ObjectType = data(3)
+    HisCTR = data(4)
+    isClick = data(5)
+  }
 }

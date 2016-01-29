@@ -28,7 +28,7 @@ object ContactStream {
   }
 }
 
-class ContactStream(s: String) {
+class ContactStream(s: String) extends java.io.Serializable{
   val features = s.split("\t")
   val UserID = features(0)
   val IPID = features(1)

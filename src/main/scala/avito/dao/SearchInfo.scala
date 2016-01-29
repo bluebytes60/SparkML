@@ -18,7 +18,7 @@ object SearchInfo {
   }
 }
 
-class SearchInfo(s: String) {
+class SearchInfo extends java.io.Serializable{
   val pattern = new Regex("([0-9]+):")
   var SearchID = ""
   var SearchDate = new Date()
@@ -30,7 +30,10 @@ class SearchInfo(s: String) {
   var CategoryID = ""
   var SearchParams = Set[String]()
 
-  parse(s)
+  def this(s: String) {
+    this()
+    parse(s)
+  }
 
   def parse(s: String) = {
     if (s.length > 0) {

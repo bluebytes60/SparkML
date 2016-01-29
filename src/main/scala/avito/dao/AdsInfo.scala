@@ -17,7 +17,7 @@ object AdsInfo {
   }
 }
 
-class AdsInfo(s: String) {
+class AdsInfo extends java.io.Serializable{
 
   val pattern = new Regex("([0-9]+):")
 
@@ -29,7 +29,10 @@ class AdsInfo(s: String) {
   var Title = ""
   var IsContext = ""
 
-  parse(s)
+  def this(s: String) {
+    this()
+    parse(s)
+  }
 
   def parse(s: String): Unit = {
     val data = s.split("\t")
