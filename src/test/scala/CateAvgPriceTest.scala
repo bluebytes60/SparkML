@@ -16,8 +16,8 @@ class CateAvgPriceTest extends FunSuite {
     val data = sc.parallelize(List(s1, s2, s3))
     val adsInfos = AdsInfo.parse(data)
     val stats = CatAvgPrice.parse(adsInfos).collectAsMap()
-    assert(stats("31") == 625)
-    assert(stats("32") == 750)
+    assert(stats("31").Avg == 625)
+    assert(stats("32").Avg == 750)
     sc.stop()
   }
 }

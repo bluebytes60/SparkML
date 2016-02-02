@@ -25,8 +25,8 @@ class PriorClicksTest extends FunSuite {
       val result = r.collectAsMap()
 
       assert(result.size == 2)
-      assert(result("11441863") == 2)
-      assert(result("11441864") == 0)
+      assert(result("11441863").Clicks == 2)
+      assert(result("11441864").Clicks == 0)
     }
     finally {
       sc.stop()
