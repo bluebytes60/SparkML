@@ -2,7 +2,7 @@ package avito.dao
 
 import java.util.Date
 
-import avito.Util
+import avito.DateUtil
 import org.apache.spark.rdd.RDD
 
 import scala.util.matching.Regex
@@ -12,8 +12,8 @@ import scala.util.matching.Regex
   */
 
 object SearchInfo {
-  def parse(data: RDD[String]): RDD[SearchStream] = {
-    val r = data.filter(line => line.split("\t").length >= 9).map(line => new SearchStream(line))
+  def parse(data: RDD[String]): RDD[SearchInfo] = {
+    val r = data.filter(line => line.split("\t").length >= 9).map(line => new SearchInfo(line))
     r
   }
 }
@@ -39,7 +39,7 @@ class SearchInfo extends java.io.Serializable{
     if (s.length > 0) {
       val data = s.split("\t")
       if (data.length >= 1) SearchID = data(0)
-      if (data.length >= 2) SearchDate = Util.parseSearchDate(data(1))
+      if (data.length >= 2) SearchDate = DateUtil.parseSearchDate(data(1))
       if (data.length >= 3) IPID = data(2)
       if (data.length >= 4) UserID = data(3)
       if (data.length >= 5) IsUserLoggedOn = data(4)

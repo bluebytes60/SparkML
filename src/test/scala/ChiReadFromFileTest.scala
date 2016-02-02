@@ -1,6 +1,6 @@
 import java.io.{PrintWriter}
 
-import avito.features.ChiSquare
+import avito.features.{Feature, ChiSquare}
 import org.apache.spark.{SparkContext, SparkConf}
 import org.scalatest.FunSuite
 
@@ -25,7 +25,7 @@ class ChiReadFromFileTest extends FunSuite {
     w.close()
     val conf = new SparkConf().setAppName("priorClick").setMaster("local[2]")
     val sc = new SparkContext(conf)
-    val chi = ChiSquare.readFromfile(f.getAbsolutePath, sc, 10)
+    val chi = Feature.readFromfile(f.getAbsolutePath, sc, 10)
     assert(chi.size == 10)
     assert(chi("велосипед") == 3363503.55382717)
     assert(chi("iphone") == 2626155.957430137)

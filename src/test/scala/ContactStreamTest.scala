@@ -14,7 +14,7 @@ class ContactStreamTest extends FunSuite {
         val conf = new SparkConf().setAppName("priorClick").setMaster("local[2]")
         sc = new SparkContext(conf)
         val data = sc.parallelize(List(s1, s2, s3, s4))
-        val vistStream = ContactStream.parse(data)
+        val vistStream = ContactStream.parse(data, "phone")
         val result = vistStream.collectAsMap()
         assert(result.keys.size == 2)
         assert(result("61291").size == 3)

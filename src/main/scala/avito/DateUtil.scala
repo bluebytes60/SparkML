@@ -7,12 +7,9 @@ import org.apache.spark.rdd.RDD
 /**
   * Created by bluebyte60 on 1/27/16.
   */
-object Util {
+object DateUtil {
   val searchTimeFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S")
 
-  def removeFirstLine(data: RDD[String]): RDD[String] = {
-    data.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
-  }
 
   def parseSearchDate(s: String): Date = {
     var d: Date = new Date()

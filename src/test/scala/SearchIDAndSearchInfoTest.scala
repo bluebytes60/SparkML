@@ -1,6 +1,6 @@
 import java.util.{Calendar, Date}
 
-import avito.Util
+import avito.DateUtil
 import avito.dao.{SearchStream, SearchInfo}
 import org.scalatest.FunSuite
 
@@ -19,7 +19,7 @@ class SearchIDAndSearchInfoTest extends FunSuite {
 
   test("should able to parse search date") {
     val s = "2015-05-06 07:29:16.0"
-    val d = Util.parseSearchDate(s)
+    val d = DateUtil.parseSearchDate(s)
     val cal = Calendar.getInstance();
     cal.setTime(d);
     val year = cal.get(Calendar.YEAR);

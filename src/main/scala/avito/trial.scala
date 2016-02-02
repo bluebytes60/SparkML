@@ -17,11 +17,11 @@ object trial {
 
     val sc = new SparkContext(conf)
 
-    val rawSearchStream = Util.removeFirstLine(sc.textFile("/Users/bluebyte60/Desktop/avito/trainSearchStream.tsv"))
+    val rawSearchStream = Preprocess.removeFirstLine(sc.textFile("/Users/bluebyte60/Desktop/avito/trainSearchStream.tsv"))
     val SearchStream = rawSearchStream.filter(line => line.split("\t").length > 4)
       .map(line => new SearchStream(line))
       .map(rawSearchStream => (rawSearchStream.SearchID, rawSearchStream.isClick))
-    val rawSearchInfo = Util.removeFirstLine(sc.textFile("/Users/bluebyte60/Desktop/avito/SearchInfo.tsv"))
+    val rawSearchInfo = Preprocess.removeFirstLine(sc.textFile("/Users/bluebyte60/Desktop/avito/SearchInfo.tsv"))
     val SearchInfo = rawSearchInfo.map(line => new SearchInfo(line))
       .filter(searchInfo => searchInfo.SearchParams.size > 0 || searchInfo.SearchQuery.size > 0)
       .map(searchInfo => (searchInfo.SearchID, (searchInfo.SearchQuery, searchInfo.SearchParams)))

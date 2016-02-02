@@ -1,6 +1,6 @@
 package avito.dao
 
-import avito.Util
+import avito.DateUtil
 import org.apache.spark.rdd.RDD
 
 import scala.collection.parallel.mutable

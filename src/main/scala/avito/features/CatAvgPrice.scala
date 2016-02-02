@@ -9,7 +9,7 @@ import org.apache.spark.rdd.RDD
   */
 object CatAvgPrice {
 
-  def get(data: RDD[AdsInfo]): RDD[(String, CatAvgPrice)] = {
+  def parse(data: RDD[AdsInfo]): RDD[(String, CatAvgPrice)] = {
     val r = data.map(adsInfo => (adsInfo.CategoryID, (adsInfo.Price, 1)))
       .reduceByKey { case ((value1, count1), (value2, count2)) => (value1 + value2, count1 + count2) }
       .mapValues { case (value, count) => value.toDouble / count.toDouble }

@@ -8,24 +8,26 @@ import org.apache.spark.rdd.RDD
 
 object Category {
 
-  def parse(data: RDD[String]): RDD[Category] = {
+  def parse(data: RDD[String], Type: String): RDD[Category] = {
     val r = data.filter(line => line.split("\t").length >= 4)
-      .map(line => new Category(line))
+      .map(line => new Category(line, Type))
     r
   }
 
 }
 
 
-class Category extends java.io.Serializable{
+class Category extends java.io.Serializable {
 
   var CategoryID = ""
   var Level = ""
   var ParentCategoryID = ""
   var SubcategoryID = ""
+  var CategoryType = ""
 
-  def this(s: String) {
+  def this(s: String, CategoryType: String) {
     this()
+    this.CategoryType = CategoryType
     parse(s)
   }
 

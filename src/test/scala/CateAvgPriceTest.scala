@@ -15,7 +15,7 @@ class CateAvgPriceTest extends FunSuite {
     val sc = new SparkContext(conf)
     val data = sc.parallelize(List(s1, s2, s3))
     val adsInfos = AdsInfo.parse(data)
-    val stats = CatAvgPrice.get(adsInfos).collectAsMap()
+    val stats = CatAvgPrice.parse(adsInfos).collectAsMap()
     assert(stats("31") == 625)
     assert(stats("32") == 750)
     sc.stop()

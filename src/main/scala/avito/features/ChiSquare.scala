@@ -15,13 +15,6 @@ import scala.reflect.io.File
   */
 object ChiSquare {
 
-  def readFromfile(filePath: String, sc: SparkContext, topK: Int): Map[String, Double] = {
-    val inputFile = sc.textFile(filePath)
-    val r = inputFile.map(line => line.replace("(", "").replace(")", "").split(","))
-      .map(features => (features(0), features(1).toDouble))
-      .map(item => item.swap).sortByKey(false, 1).map(item => item.swap)
-    r.take(topK).toMap
-  }
 
 
   def main(args: Array[String]): Unit = {
