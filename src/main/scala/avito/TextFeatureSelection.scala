@@ -8,7 +8,7 @@ import org.apache.spark.{SparkContext, SparkConf}
 /**
   * Created by bluebyte60 on 1/26/16.
   */
-object trial {
+object TextFeatureSelection {
   def main(args: Array[String]) {
     val startTime = System.currentTimeMillis();
 
