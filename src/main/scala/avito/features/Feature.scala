@@ -20,6 +20,14 @@ object Feature {
     Op
   }
 
+  def extract(seq: Seq[Any], c: Class[_], Type: String): Option[Any] = {
+    var Op: Option[Any] = None
+    for (x <- seq) {
+      if (x.getClass.equals(c) && c.equals(classOf[Category]) && x.asInstanceOf[Category].CategoryType.equals(Type)) Op = Some(x)
+    }
+    Op
+  }
+
   def appendSearchInfo(searchStream: RDD[(SearchStream, Seq[Any])], ads: RDD[(SearchInfo, Seq[Any])]): RDD[(SearchStream, Seq[Any])] = {
     val mappedSearchStream = searchStream.map { case (s, seq) => (s.AdID, (s, seq)) }
     val mappedSeachInfos = ads.map { case (se, seq) => (se.SearchID, seq :+ se) }

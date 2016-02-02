@@ -23,7 +23,7 @@ class ChiReadFromFileTest extends FunSuite {
       "(iphone,2626155.957430137)\n" +
       "(велосипед,3363503.55382717)")
     w.close()
-    val conf = new SparkConf().setAppName("priorClick").setMaster("local[2]")
+    val conf = new SparkConf().setAppName("chiTest").setMaster("local[2]")
     val sc = new SparkContext(conf)
     val chi = Feature.readFromfile(f.getAbsolutePath, sc, 10)
     assert(chi.size == 10)

@@ -25,7 +25,7 @@ class AdsInfo extends java.io.Serializable{
   var LocationID = ""
   var CategoryID = ""
   var Params = Set[String]()
-  var Price = 0
+  var Price = 0d
   var Title = ""
   var IsContext = ""
 
@@ -40,7 +40,7 @@ class AdsInfo extends java.io.Serializable{
     LocationID = data(1)
     CategoryID = data(2)
     Params = parsePara(data(3))
-    Price = data(4).toInt
+    Price = data(4).toDouble
     Title = data(5)
     IsContext = data(6)
   }

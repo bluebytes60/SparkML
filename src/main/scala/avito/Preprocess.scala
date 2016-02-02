@@ -22,7 +22,7 @@ object Preprocess {
   val chiFeature = dir + "chi"
 
 
-  def removeFirstLine(data: RDD[String]): RDD[String] = {
+  def rmFirst(data: RDD[String]): RDD[String] = {
     data.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
   }
 
@@ -32,23 +32,23 @@ object Preprocess {
 
     val sc = new SparkContext(conf)
 
-    val adsInfos = AdsInfo.parse(sc.textFile(adsInfoFile))
+    val adsInfos = AdsInfo.parse(rmFirst(sc.textFile(adsInfoFile)))
 
-    val searchCategories = Category.parse(sc.textFile(categoryFile), ActionType.Search)
+    val searchCategories = Category.parse(rmFirst(sc.textFile(categoryFile)), ActionType.Search)
 
-    val adsCategories = Category.parse(sc.textFile(categoryFile), ActionType.Ads)
+    val adsCategories = Category.parse(rmFirst(sc.textFile(categoryFile)), ActionType.Ads)
 
-    val locations = Location.parse(sc.textFile(locationFile))
+    val locations = Location.parse(rmFirst(sc.textFile(locationFile)))
 
-    val phoneStream = ContactStream.parse(sc.textFile(phoneStreamFile), ActionType.Phone)
+    val phoneStream = ContactStream.parse(rmFirst(sc.textFile(phoneStreamFile)), ActionType.Phone)
 
-    val visitStream = ContactStream.parse(sc.textFile(visitsStreamFile), ActionType.Visit)
+    val visitStream = ContactStream.parse(rmFirst(sc.textFile(visitsStreamFile)), ActionType.Visit)
 
-    val searchInfos = SearchInfo.parse(sc.textFile(searchInfoFile))
+    val searchInfos = SearchInfo.parse(rmFirst(sc.textFile(searchInfoFile)))
 
-    val userInfo = UserInfo.parse(sc.textFile(userInfoFile))
+    val userInfo = UserInfo.parse(rmFirst(sc.textFile(userInfoFile)))
 
-    val trainSearchStream = SearchStream.parse(sc.textFile(trainSearchStreamFile))
+    val trainSearchStream = SearchStream.parse(rmFirst(sc.textFile(trainSearchStreamFile))).filter(s => s.ObjectType.equals("3"))
 
     val chi = Feature.readFromfile(dir + "chi", sc, 20000)
 
@@ -66,7 +66,7 @@ object Preprocess {
 
     val adsF = Feature.appendLocations(Feature.appendCats(adsInfos.map(x => (x, Seq[Any]())), adsCategories), locations)
 
-    val TotalF = Feature.appendPriorClicks(Feature.appendSearchInfo(Feature.appendAds(trainSearchStream.map(x => (x, Seq[Any]())), adsF), searchInfoF), priorClicks)
+    val TotalF = Feature.appendPriorClicks(Feature.appendSearchInfo(Feature.appendAds(trainSearchStream.map(x => (x, Seq[Any](x))), adsF), searchInfoF), priorClicks)
 
     //----------------------------------convertToVector------------------------//
 
