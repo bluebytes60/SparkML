@@ -17,7 +17,7 @@ object AdsInfo {
   }
 }
 
-class AdsInfo extends java.io.Serializable{
+class AdsInfo extends java.io.Serializable {
 
   val pattern = new Regex("([0-9]+):")
 
@@ -40,7 +40,7 @@ class AdsInfo extends java.io.Serializable{
     LocationID = data(1)
     CategoryID = data(2)
     Params = parsePara(data(3))
-    Price = data(4).toDouble
+    Price = if (data(4) == "") 0 else data(4).toDouble
     Title = data(5)
     IsContext = data(6)
   }

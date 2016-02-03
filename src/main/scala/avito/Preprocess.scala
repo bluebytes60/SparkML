@@ -1,5 +1,6 @@
 package avito
 
+import avito.Transform.Trans
 import avito.dao._
 import avito.features.{PriorClicks, CatAvgPrice, ChiSquare, Feature}
 import org.apache.spark.rdd.RDD
@@ -9,7 +10,9 @@ import org.apache.spark.{SparkContext, SparkConf}
   * Created by bluebyte60 on 2/1/16.
   */
 
+
 object Preprocess {
+  val shouldSave = true
   val dir = "/Users/bluebyte60/Desktop/avito/"
   val adsInfoFile = dir + "AdsInfoSampled.tsv"
   val categoryFile = dir + "Category.tsv"
@@ -18,8 +21,10 @@ object Preprocess {
   val visitsStreamFile = dir + "VisitsStreamSampled.tsv"
   val searchInfoFile = dir + "SearchInfoSampled.tsv"
   val userInfoFile = dir + "UserInfo.tsv"
-  val trainSearchStreamFile = dir + "VisitsStreamSampled.tsv"
+  val trainSearchStreamFile = dir + "trainSearchStreamSampled.tsv"
   val chiFeature = dir + "chi"
+  val tiitleFeature = dir + "title"
+  val paraFeatures = dir + "paras"
 
 
   def rmFirst(data: RDD[String]): RDD[String] = {
@@ -50,11 +55,13 @@ object Preprocess {
 
     val trainSearchStream = SearchStream.parse(rmFirst(sc.textFile(trainSearchStreamFile))).filter(s => s.ObjectType.equals("3"))
 
-    val chi = Feature.readFromfile(dir + "chi", sc, 20000)
+    val query = Feature.readFromfile(chiFeature, sc, 20000)
 
-    val paras = Feature.readFromfile(dir + "paras", sc, -1)
+    val title = Feature.readFromfile(tiitleFeature, sc, 20000)
 
-    val CatAvg = CatAvgPrice.parse(adsInfos).collectAsMap()
+    val paras = Feature.readFromfile(paraFeatures, sc, -1)
+
+    val catAvg = CatAvgPrice.parse(adsInfos).collectAsMap()
 
     val priorClicks = PriorClicks.parse(trainSearchStream)
 
@@ -66,13 +73,29 @@ object Preprocess {
 
     val adsF = Feature.appendLocations(Feature.appendCats(adsInfos.map(x => (x, Seq[Any]())), adsCategories), locations)
 
-    val TotalF = Feature.appendPriorClicks(Feature.appendSearchInfo(Feature.appendAds(trainSearchStream.map(x => (x, Seq[Any](x))), adsF), searchInfoF), priorClicks)
+    val s1 = Feature.appendAds(trainSearchStream.map(x => (x, Seq[Any](x))), adsF)
+
+    val s2 = Feature.appendSearchInfo(s1, searchInfoF)
+
+    val s3 = Feature.appendAds(s2, adsF)
+
+    val s4 = Feature.appendPriorClicks(s3, priorClicks)
+
 
     //----------------------------------convertToVector------------------------//
-
+    val r = s4.map {
+      case (sea, seq) => {
+        (sea.isClick,
+          Trans.baseFeature(seq)
+          ++ Trans.textFeatures(seq, paras, query, title)
+          ++ Trans.CatAvgPrice(seq, catAvg)
+          ++ Trans.ContactFeature(seq)
+          )
+      }
+    }
+    r.saveAsTextFile("r")
 
     //-------------------------------------------------------------------------//
   }
-
 
 }

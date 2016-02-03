@@ -28,9 +28,9 @@ object Feature {
     Op
   }
 
-  def appendSearchInfo(searchStream: RDD[(SearchStream, Seq[Any])], ads: RDD[(SearchInfo, Seq[Any])]): RDD[(SearchStream, Seq[Any])] = {
+  def appendSearchInfo(searchStream: RDD[(SearchStream, Seq[Any])], searchInfos: RDD[(SearchInfo, Seq[Any])]): RDD[(SearchStream, Seq[Any])] = {
     val mappedSearchStream = searchStream.map { case (s, seq) => (s.AdID, (s, seq)) }
-    val mappedSeachInfos = ads.map { case (se, seq) => (se.SearchID, seq :+ se) }
+    val mappedSeachInfos = searchInfos.map { case (se, seq) => (se.SearchID, seq :+ se) }
     val r = mappedSearchStream.leftOuterJoin(mappedSeachInfos)
       .map {
         case (adsID: String, ((s, seq1), seq2)) => (s, seq1 ++ seq2.getOrElse(Seq()))
@@ -118,9 +118,10 @@ object Feature {
     r
   }
 
-  def readFromfile(filePath: String, sc: SparkContext, topK: Int): Map[String, Double] = {
+  def readFromfile(filePath: String, sc: SparkContext, topK: Int): scala.collection.Map[String, Double] = {
     val inputFile = sc.textFile(filePath)
     val r = inputFile.map(line => line.replace("(", "").replace(")", "").split(","))
+      .filter(seq => seq.length == 2)
       .map(features => (features(0), features(1).toDouble))
       .map(item => item.swap).sortByKey(false, 1).map(item => item.swap)
     if (topK == -1) r.collectAsMap() else r.take(topK).toMap
