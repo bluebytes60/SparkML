@@ -12,28 +12,16 @@ import org.apache.spark.{SparkConf, SparkContext}
 object linearSVM {
 
   def main(args: Array[String]) {
-    val dbUrl = "jdbc:sqlite:/Users/bluebyte60/Documents/github/SparkML/data/avito/database.sqlite"
 
-    val table = "train"
-
-    val driver = "org.sqlite.JDBC"
-
-    val features = 4
-
-    val conf = new SparkConf().setAppName("QueueStream").setMaster("local[2]")
+    val conf = new SparkConf().setAppName("SVM").setMaster("local[2]")
 
     val sc = new SparkContext(conf)
 
-    val sqlContext = new SQLContext(sc)
-
-    val jdbcDF = sqlContext.read.format("jdbc").options(
-      Map("url" -> dbUrl, "dbtable" -> table)).load()
-
-    val data = jdbcDF.map(row => LabeledPoint.parse(toString(row)))
+    val data = sc.textFile("/Users/bluebyte60/Documents/github/SparkML/rr/part-00[0-5]*").map(line => LabeledPoint.parse(line)).filter(f => f.features.size == 53)
 
     val splits = data.randomSplit(Array(0.97, 0.03), seed = 11L)
 
-    val training = splits(0).cache()
+    val training = splits(0)
 
     val test = splits(1)
 

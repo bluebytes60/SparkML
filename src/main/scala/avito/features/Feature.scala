@@ -89,8 +89,8 @@ object Feature {
     r
   }
 
-  def appendSearchLocations(adsStream: RDD[(SearchInfo, Seq[Any])], locations: RDD[Location]): RDD[(SearchInfo, Seq[Any])] = {
-    val mappedAdsStream = adsStream.map { case (ad, seq) => (ad.LocationID, (ad, seq)) }
+  def appendSearchLocations(searchStream: RDD[(SearchInfo, Seq[Any])], locations: RDD[SearchLocation]): RDD[(SearchInfo, Seq[Any])] = {
+    val mappedAdsStream = searchStream.map { case (se, seq) => (se.LocationID, (se, seq)) }
     val mappedLocation = locations.map(loc => (loc.LocationID, Seq(loc)))
     val r = mappedAdsStream.leftOuterJoin(mappedLocation)
       .map {

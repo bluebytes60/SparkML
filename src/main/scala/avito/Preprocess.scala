@@ -14,14 +14,14 @@ import org.apache.spark.{SparkContext, SparkConf}
 object Preprocess {
   val shouldSave = true
   val dir = "/Users/bluebyte60/Desktop/avito/"
-  val adsInfoFile = dir + "AdsInfoSampled.tsv"
+  val adsInfoFile = dir + "AdsInfo.tsv"
   val categoryFile = dir + "Category.tsv"
   val locationFile = dir + "Location.tsv"
-  val phoneStreamFile = dir + "PhoneRequestsStreamSampled.tsv"
-  val visitsStreamFile = dir + "VisitsStreamSampled.tsv"
-  val searchInfoFile = dir + "SearchInfoSampled.tsv"
+  val phoneStreamFile = dir + "PhoneRequestsStream.tsv"
+  val visitsStreamFile = dir + "VisitsStream.tsv"
+  val searchInfoFile = dir + "SearchInfo.tsv"
   val userInfoFile = dir + "UserInfo.tsv"
-  val trainSearchStreamFile = dir + "trainSearchStreamSampled.tsv"
+  val trainSearchStreamFile = dir + "trainSearchStream.tsv"
   val chiFeature = dir + "chi"
   val tiitleFeature = dir + "title"
   val paraFeatures = dir + "paras"
@@ -45,6 +45,8 @@ object Preprocess {
 
     val locations = Location.parse(rmFirst(sc.textFile(locationFile)))
 
+    val searchLocations = Location.parseSearchLocation(rmFirst(sc.textFile(locationFile)))
+
     val phoneStream = ContactStream.parse(rmFirst(sc.textFile(phoneStreamFile)), ActionType.Phone)
 
     val visitStream = ContactStream.parse(rmFirst(sc.textFile(visitsStreamFile)), ActionType.Visit)
@@ -54,6 +56,7 @@ object Preprocess {
     val userInfo = UserInfo.parse(rmFirst(sc.textFile(userInfoFile)))
 
     val trainSearchStream = SearchStream.parse(rmFirst(sc.textFile(trainSearchStreamFile))).filter(s => s.ObjectType.equals("3"))
+    println(trainSearchStream.count)
 
     val query = Feature.readFromfile(chiFeature, sc, 20000)
 
@@ -69,7 +72,7 @@ object Preprocess {
 
     val userF = Feature.appendContactStreamInfo(userInfo, phoneStream.union(visitStream).groupByKey())
 
-    val searchInfoF = Feature.appendSearchCats(Feature.appendSearchLocations(Feature.appendUserInfo(searchInfos, userF), locations), searchCategories)
+    val searchInfoF = Feature.appendSearchCats(Feature.appendSearchLocations(Feature.appendUserInfo(searchInfos, userF), searchLocations), searchCategories)
 
     val adsF = Feature.appendLocations(Feature.appendCats(adsInfos.map(x => (x, Seq[Any]())), adsCategories), locations)
 
@@ -86,14 +89,15 @@ object Preprocess {
     val r = s4.map {
       case (sea, seq) => {
         (sea.isClick,
-          Trans.baseFeature(seq)
-          ++ Trans.textFeatures(seq, paras, query, title)
-          ++ Trans.CatAvgPrice(seq, catAvg)
-          ++ Trans.ContactFeature(seq)
+          (Trans.baseFeature(seq) ++
+            Trans.textFeatures(seq, paras, query, title) ++
+            Trans.CatAvgPrice(seq, catAvg) ++
+            Trans.ContactFeature(seq))
           )
       }
+    }.map { case (isClick, seq) => (String.format("(%s,[%s])", isClick.toString, seq mkString ","))
     }
-    r.saveAsTextFile("r")
+    r.saveAsTextFile(dir+"rr")
 
     //-------------------------------------------------------------------------//
   }

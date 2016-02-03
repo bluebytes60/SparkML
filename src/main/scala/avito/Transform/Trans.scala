@@ -28,13 +28,13 @@ object Trans {
       val s = searchInfo.get
       val cal = Calendar.getInstance();
       cal.setTime(s.SearchDate);
-      v ++ Seq(
+      v ++= Seq(
         cal.get(Calendar.DAY_OF_MONTH),
         cal.get(Calendar.DAY_OF_WEEK),
         s.IPID,
         s.UserID,
         s.IsUserLoggedOn,
-        s.SearchQuery,
+        s.SearchQuery.size,
         s.LocationID,
         s.CategoryID
       )
@@ -50,8 +50,8 @@ object Trans {
     val adsInfo = Feature.extract(seq, classOf[AdsInfo]).asInstanceOf[Option[AdsInfo]]
     if (adsInfo != None) {
       val a = adsInfo.get
-      v ++= Seq(a.AdID, a.LocationID, a.CategoryID, a.Title.length, a.Price, a.IsContext)
-    } else v ++= Seq(0, 0, 0, 0, 0, 0)
+      v ++= Seq(a.AdID, a.CategoryID, a.Title.length, a.Price, a.IsContext)
+    } else v ++= Seq(0, 0, 0, 0, 0)
 
 
     val priorClick = Feature.extract(seq, classOf[PriorClicks]).asInstanceOf[Option[PriorClicks]]
@@ -69,7 +69,7 @@ object Trans {
 
     val adCategory = Feature.extract(seq, classOf[Category], ActionType.Ads).asInstanceOf[Option[Category]]
 
-    if (searchCategory != None) {
+    if (adCategory != None) {
       val a = adCategory.get
       v ++= Seq(a.CategoryID, a.Level, a.ParentCategoryID, a.SubcategoryID)
     } else v ++= Seq(0, 0, 0, 0)
@@ -78,15 +78,15 @@ object Trans {
 
     if (searchLocation != None) {
       val s = searchLocation.get
-      v ++= Seq(s.Level, s.RegionID, s.CityID)
-    } else v ++= Seq(0, 0, 0)
+      v ++= Seq(s.LocationID, s.Level, s.RegionID, s.CityID)
+    } else v ++= Seq(0, 0, 0, 0)
 
     val adsLocation = Feature.extract(seq, classOf[Location]).asInstanceOf[Option[Location]]
 
     if (adsLocation != None) {
       val a = adsLocation.get
-      v ++= Seq(a.Level, a.RegionID, a.CityID)
-    } else v ++= Seq(0, 0, 0)
+      v ++= Seq(a.LocationID, a.Level, a.RegionID, a.CityID)
+    } else v ++= Seq(0, 0, 0, 0)
 
     v
   }
@@ -99,13 +99,15 @@ object Trans {
 
     if (searchInfo != None && searchInfo.get.SearchParams.size > 0
       && adsInfo != None && adsInfo.get.Params.size > 0) {
-      v ++= Seq(searchInfo.get.SearchParams.intersect(adsInfo.get.Params))
+      v ++= Seq(searchInfo.get.SearchParams.intersect(adsInfo.get.Params).size)
     } else v ++= Seq(0)
 
     if (searchInfo != None) {
       val s = searchInfo.get
       val paraSim = s.SearchParams.filter(x => paramFeatures.contains(x)).map(x => paramFeatures(x))
-      v ++= Seq(paraSim.sum / paraSim.size, paraSim.min, paraSim.max)
+      if (!paraSim.isEmpty) {
+        v ++= Seq(paraSim.sum / paraSim.size, paraSim.min, paraSim.max)
+      } else v ++= Seq(0, 0, 0)
     } else v ++= Seq(0, 0, 0)
 
     if (searchInfo != None) {
@@ -124,7 +126,7 @@ object Trans {
       } else v ++= Seq(0, 0, 0)
     } else v ++= Seq(0, 0, 0)
 
-    if (searchInfo != None) {
+    if (searchInfo != None && adsInfo != None) {
       val value = searchInfo.get.SearchQuery.map(x => DiceSorensenMetric(1).compare(x, adsInfo.get.Title).getOrElse(0d)).sum
       v ++= Seq(value)
     } else v ++= Seq(0)
@@ -159,11 +161,16 @@ object Trans {
   def ContactFeature(seq: Seq[Any], Type: String): Seq[Any] = {
     var v = Seq[Any]()
     val searchStream = Feature.extract(seq, classOf[SearchStream]).asInstanceOf[Option[SearchStream]]
-    val s = searchStream.get
     val contactFeature = Feature.extract(seq, classOf[mutable.ParHashSet[ContactHis]]).asInstanceOf[Option[mutable.ParHashSet[ContactHis]]]
-    if (searchStream != None && contactFeature != None) {
+    val searchInfo = Feature.extract(seq, classOf[SearchInfo]).asInstanceOf[Option[SearchInfo]]
+    if (searchStream != None && contactFeature != None && searchInfo != None) {
+      val s = searchStream.get
       val c = contactFeature.get
-      v ++= Seq(c.filter(x => x.ContactType.equals(Type) && x.ContactAdsID == s.AdID).size)
+      val se = searchInfo.get
+      v ++= Seq(c.filter(
+        x => x.ContactType.equals(Type)
+          && x.ContactAdsID.equals(s.AdID)
+          && x.ContactDate.before(se.SearchDate)).size)
     } else v ++= Seq(0)
     v
   }

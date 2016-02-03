@@ -22,7 +22,7 @@ class AdsInfo extends java.io.Serializable {
   val pattern = new Regex("([0-9]+):")
 
   var AdID = ""
-  var LocationID = ""
+  var LocationID = "-1"
   var CategoryID = ""
   var Params = Set[String]()
   var Price = 0d
