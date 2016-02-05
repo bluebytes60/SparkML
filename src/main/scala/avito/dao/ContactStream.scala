@@ -13,14 +13,14 @@ import scala.collection.parallel.mutable
 object ContactStream {
   def parseVisit(data: RDD[String]): RDD[(String, mutable.ParHashSet[ContactHis])] = {
     val r = data.filter(line => line.split("\t").length >= 4).map(line => new ContactStream(line))
-      .map(vistStream => (vistStream.UserID, new PhoneHis(vistStream.AdID, vistStream.ViewDate)))
+      .map(contactStream => (contactStream.UserID, new VisitHis(contactStream.AdID, contactStream.ViewDate)))
       .aggregateByKey(mutable.ParHashSet.empty[ContactHis])(addToSet, mergePartitionSet)
     r
   }
 
   def parsePhone(data: RDD[String]): RDD[(String, mutable.ParHashSet[ContactHis])] = {
     val r = data.filter(line => line.split("\t").length >= 4).map(line => new ContactStream(line))
-      .map(vistStream => (vistStream.UserID, new PhoneHis(vistStream.AdID, vistStream.ViewDate)))
+      .map(contactStream => (contactStream.UserID, new PhoneHis(contactStream.AdID, contactStream.ViewDate)))
       .aggregateByKey(mutable.ParHashSet.empty[ContactHis])(addToSet, mergePartitionSet)
     r
   }
@@ -58,6 +58,6 @@ class ContactHis(AdsID: String, date: Date) extends java.io.Serializable {
 
 }
 
-class PhoneHist(AdsID: String, date: Date) extends ContactHis(AdsID: String, date: Date)
+class VisitHis(AdsID: String, date: Date) extends ContactHis(AdsID: String, date: Date)
 
 class PhoneHis(AdsID: String, date: Date) extends ContactHis(AdsID: String, date: Date)

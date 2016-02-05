@@ -117,15 +117,6 @@ object Feature {
     r
   }
 
-  def appendPhoneStreamInfo(userInfos: RDD[UserInfo], contact: RDD[(String, Iterable[mutable.ParHashSet[ContactHis]])]): RDD[(UserInfo, Seq[Any])] = {
-    val mappedUserInfos = userInfos.map(user => (user.UserID, (user, Seq[Any]())))
-    val mappedcontact = contact.map { case (userID, contactStream) => (userID, contactStream.toSeq) }
-    val r = mappedUserInfos.leftOuterJoin(mappedcontact).map {
-      case (userID, ((ad, seq), contactStreams)) => (ad, seq ++ contactStreams.getOrElse(Seq()))
-    }
-    r
-  }
-
   def readFromfile(filePath: String, sc: SparkContext, topK: Int): scala.collection.Map[String, Double] = {
     val inputFile = sc.textFile(filePath)
     val r = inputFile.map(line => line.replace("(", "").replace(")", "").split(","))
