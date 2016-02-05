@@ -17,7 +17,7 @@ object linearSVM {
 
     val sc = new SparkContext(conf)
 
-    val data = sc.textFile("/Users/bluebyte60/Documents/github/SparkML/rr/part-00[0-5]*").map(line => LabeledPoint.parse(line)).filter(f => f.features.size == 53)
+    val data = sc.textFile("/Users/bluebyte60/Documents/github/SparkML/rr/part-00[0-5]*").map(line => LabeledPoint.parse(line))
 
     val splits = data.randomSplit(Array(0.97, 0.03), seed = 11L)
 

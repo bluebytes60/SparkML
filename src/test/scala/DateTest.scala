@@ -19,12 +19,12 @@ class DateTest extends FunSuite {
   test("Test hashcode working correctly") {
     val s = HashSet()
     val d1 = "2015-05-06 07:29:16.0"
-    val VisHist1 = new ContactHis("1", DateUtil.parseSearchDate(d1),"phone")
-    val VisHist2 = new ContactHis("1", DateUtil.parseSearchDate(d1),"phone")
+    val VisHist1 = new ContactHis("1", DateUtil.parseSearchDate(d1))
+    val VisHist2 = new ContactHis("1", DateUtil.parseSearchDate(d1))
     val set1 = HashSet(VisHist1, VisHist2)
     assert(set1.size == 1)
     val d2 = "2015-05-08 07:29:16.0"
-    val VisHist3 = new ContactHis("1", DateUtil.parseSearchDate(d2),"phone")
+    val VisHist3 = new ContactHis("1", DateUtil.parseSearchDate(d2))
     val set2 = HashSet(VisHist1, VisHist2, VisHist3)
     assert(set2.size == 2)
   }

@@ -155,22 +155,35 @@ object Trans {
   }
 
   def ContactFeature(seq: Seq[Any]): Seq[Any] = {
-    ContactFeature(seq, ActionType.Phone) ++ ContactFeature(seq, ActionType.Visit)
+    VisitedFeature(seq) ++ PhoneFeature(seq)
   }
 
-  def ContactFeature(seq: Seq[Any], Type: String): Seq[Any] = {
+  def VisitedFeature(seq: Seq[Any]): Seq[Any] = {
     var v = Seq[Any]()
     val searchStream = Feature.extract(seq, classOf[SearchStream]).asInstanceOf[Option[SearchStream]]
-    val contactFeature = Feature.extract(seq, classOf[mutable.ParHashSet[ContactHis]]).asInstanceOf[Option[mutable.ParHashSet[ContactHis]]]
+    val visitedFeature = Feature.extract(seq, classOf[mutable.ParHashSet[PhoneHis]]).asInstanceOf[Option[mutable.ParHashSet[PhoneHis]]]
     val searchInfo = Feature.extract(seq, classOf[SearchInfo]).asInstanceOf[Option[SearchInfo]]
-    if (searchStream != None && contactFeature != None && searchInfo != None) {
+    if (searchStream != None && visitedFeature != None && searchInfo != None) {
       val s = searchStream.get
-      val c = contactFeature.get
+      val c = visitedFeature.get
       val se = searchInfo.get
-      v ++= Seq(c.filter(
-        x => x.ContactType.equals(Type)
-          && x.ContactAdsID.equals(s.AdID)
-          && x.ContactDate.before(se.SearchDate)).size)
+      v ++= Seq(c.filter(x => x.ContactAdsID.equals(s.AdID)
+        && x.ContactDate.before(se.SearchDate)).size)
+    } else v ++= Seq(0)
+    v
+  }
+
+  def PhoneFeature(seq: Seq[Any]): Seq[Any] = {
+    var v = Seq[Any]()
+    val searchStream = Feature.extract(seq, classOf[SearchStream]).asInstanceOf[Option[SearchStream]]
+    val phoneFeature = Feature.extract(seq, classOf[mutable.ParHashSet[PhoneHis]]).asInstanceOf[Option[mutable.ParHashSet[PhoneHis]]]
+    val searchInfo = Feature.extract(seq, classOf[SearchInfo]).asInstanceOf[Option[SearchInfo]]
+    if (searchStream != None && phoneFeature != None && searchInfo != None) {
+      val s = searchStream.get
+      val c = phoneFeature.get
+      val se = searchInfo.get
+      v ++= Seq(c.filter(x => x.ContactAdsID.equals(s.AdID)
+        && x.ContactDate.before(se.SearchDate)).size)
     } else v ++= Seq(0)
     v
   }

@@ -47,20 +47,19 @@ object Preprocess {
 
     val searchLocations = Location.parseSearchLocation(rmFirst(sc.textFile(locationFile)))
 
-    val phoneStream = ContactStream.parse(rmFirst(sc.textFile(phoneStreamFile)), ActionType.Phone)
+    val phoneStream = ContactStream.parsePhone(rmFirst(sc.textFile(phoneStreamFile)))
 
-    val visitStream = ContactStream.parse(rmFirst(sc.textFile(visitsStreamFile)), ActionType.Visit)
+    val visitStream = ContactStream.parseVisit(rmFirst(sc.textFile(visitsStreamFile)))
 
     val searchInfos = SearchInfo.parse(rmFirst(sc.textFile(searchInfoFile)))
 
     val userInfo = UserInfo.parse(rmFirst(sc.textFile(userInfoFile)))
 
     val trainSearchStream = SearchStream.parse(rmFirst(sc.textFile(trainSearchStreamFile))).filter(s => s.ObjectType.equals("3"))
-    println(trainSearchStream.count)
 
-    val query = Feature.readFromfile(chiFeature, sc, 20000)
+    val query = Feature.readFromfile(chiFeature, sc, 1000)
 
-    val title = Feature.readFromfile(tiitleFeature, sc, 20000)
+    val title = Feature.readFromfile(tiitleFeature, sc, 1000)
 
     val paras = Feature.readFromfile(paraFeatures, sc, -1)
 
@@ -70,7 +69,7 @@ object Preprocess {
 
     //-----------------------------------Join----------------------------------//
 
-    val userF = Feature.appendContactStreamInfo(userInfo, phoneStream.union(visitStream).groupByKey())
+    val userF = Feature.appendContact(Feature.appendContact(userInfo.map(x => (x, Seq[Any]())), visitStream), phoneStream)
 
     val searchInfoF = Feature.appendSearchCats(Feature.appendSearchLocations(Feature.appendUserInfo(searchInfos, userF), searchLocations), searchCategories)
 
@@ -97,7 +96,7 @@ object Preprocess {
       }
     }.map { case (isClick, seq) => (String.format("(%s,[%s])", isClick.toString, seq mkString ","))
     }
-    r.saveAsTextFile(dir+"rr")
+    r.saveAsTextFile(dir + "rr")
 
     //-------------------------------------------------------------------------//
   }

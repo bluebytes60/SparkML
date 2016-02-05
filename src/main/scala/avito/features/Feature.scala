@@ -109,7 +109,15 @@ object Feature {
     r
   }
 
-  def appendContactStreamInfo(userInfos: RDD[UserInfo], contact: RDD[(String, Iterable[mutable.ParHashSet[ContactHis]])]): RDD[(UserInfo, Seq[Any])] = {
+  def appendContact(userInfos: RDD[(UserInfo, Seq[Any])], contact: RDD[(String, mutable.ParHashSet[ContactHis])]): RDD[(UserInfo, Seq[Any])] = {
+    val mappedUserInfos = userInfos.map { case (userInfo, seq) => (userInfo.UserID, (userInfo, seq)) }
+    val r = mappedUserInfos.leftOuterJoin(contact).map {
+      case (userID, ((userInfo, seq), contactStreams)) => (userInfo, seq ++ contactStreams.getOrElse(Seq()))
+    }
+    r
+  }
+
+  def appendPhoneStreamInfo(userInfos: RDD[UserInfo], contact: RDD[(String, Iterable[mutable.ParHashSet[ContactHis]])]): RDD[(UserInfo, Seq[Any])] = {
     val mappedUserInfos = userInfos.map(user => (user.UserID, (user, Seq[Any]())))
     val mappedcontact = contact.map { case (userID, contactStream) => (userID, contactStream.toSeq) }
     val r = mappedUserInfos.leftOuterJoin(mappedcontact).map {

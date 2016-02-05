@@ -11,9 +11,16 @@ import scala.collection.parallel.mutable
   * Created by bluebyte60 on 1/27/16.
   */
 object ContactStream {
-  def parse(data: RDD[String], Type: String): RDD[(String, mutable.ParHashSet[ContactHis])] = {
+  def parseVisit(data: RDD[String]): RDD[(String, mutable.ParHashSet[ContactHis])] = {
     val r = data.filter(line => line.split("\t").length >= 4).map(line => new ContactStream(line))
-      .map(vistStream => (vistStream.UserID, new ContactHis(vistStream.AdID, vistStream.ViewDate, Type)))
+      .map(vistStream => (vistStream.UserID, new PhoneHis(vistStream.AdID, vistStream.ViewDate)))
+      .aggregateByKey(mutable.ParHashSet.empty[ContactHis])(addToSet, mergePartitionSet)
+    r
+  }
+
+  def parsePhone(data: RDD[String]): RDD[(String, mutable.ParHashSet[ContactHis])] = {
+    val r = data.filter(line => line.split("\t").length >= 4).map(line => new ContactStream(line))
+      .map(vistStream => (vistStream.UserID, new PhoneHis(vistStream.AdID, vistStream.ViewDate)))
       .aggregateByKey(mutable.ParHashSet.empty[ContactHis])(addToSet, mergePartitionSet)
     r
   }
@@ -36,18 +43,21 @@ class ContactStream(s: String) extends java.io.Serializable {
   val ViewDate = DateUtil.parseSearchDate(features(3))
 }
 
-class ContactHis(AdsID: String, date: Date, Type: String) extends java.io.Serializable {
+class ContactHis(AdsID: String, date: Date) extends java.io.Serializable {
   val ContactAdsID = AdsID
   val ContactDate = date
-  val ContactType = Type
 
   override def equals(o: Any) = o match {
-    case that: ContactHis => that.ContactAdsID.equalsIgnoreCase(this.ContactAdsID) && DateUtil.hasSameDate(ContactDate, that.ContactDate) && that.ContactType.equals(ContactType)
+    case that: ContactHis => that.ContactAdsID.equalsIgnoreCase(this.ContactAdsID) && DateUtil.hasSameDate(ContactDate, that.ContactDate)
     case _ => false
   }
 
-  override def hashCode = ContactAdsID.hashCode + ContactDate.hashCode() + ContactType.hashCode
+  override def hashCode = ContactAdsID.hashCode + ContactDate.hashCode()
 
-  override def toString() = ContactAdsID + " " + ContactDate.toString + " " + ContactType
+  override def toString() = ContactAdsID + " " + ContactDate.toString + " "
 
 }
+
+class PhoneHist(AdsID: String, date: Date) extends ContactHis(AdsID: String, date: Date)
+
+class PhoneHis(AdsID: String, date: Date) extends ContactHis(AdsID: String, date: Date)

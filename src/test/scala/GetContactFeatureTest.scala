@@ -1,7 +1,7 @@
 import java.util.Date
 
 import avito.Transform.Trans
-import avito.dao.{SearchStream, ActionType, ContactHis}
+import avito.dao._
 import org.scalatest.FunSuite
 
 import scala.collection.parallel.mutable
@@ -11,13 +11,14 @@ import scala.collection.parallel.mutable
   */
 class GetContactFeatureTest extends FunSuite {
   test("Can get Contact Feature") {
-    val c1 = new ContactHis("1", new Date(), ActionType.Visit)
-    val c2 = new ContactHis("1", new Date(), ActionType.Phone)
-    val c3 = new ContactHis("2", new Date(), ActionType.Phone)
+    val c1 = new PhoneHis("1", new Date())
+    val c2 = new PhoneHis("1", new Date())
+    val c3 = new PhoneHis("2", new Date())
     var s = new SearchStream()
     s.AdID = "1"
-    val seq = Seq(s, mutable.ParHashSet(c1, c2))
-
+    var sInfo = new SearchInfo()
+    sInfo.SearchDate = new Date(System.currentTimeMillis() + 10000L)
+    var seq = Seq(s, sInfo, mutable.ParHashSet(c1, c2))
     val r = Trans.ContactFeature(seq)
 
     assert(r == Seq(1, 1))
