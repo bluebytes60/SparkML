@@ -161,7 +161,7 @@ object Trans {
   def VisitedFeature(seq: Seq[Any]): Seq[Any] = {
     var v = Seq[Any]()
     val searchStream = Feature.extract(seq, classOf[SearchStream]).asInstanceOf[Option[SearchStream]]
-    val visitedFeature = Feature.extract(seq, classOf[mutable.ParHashSet[PhoneHis]]).asInstanceOf[Option[mutable.ParHashSet[PhoneHis]]]
+    val visitedFeature = Feature.extract(seq, classOf[mutable.ParHashSet[VisitHis]]).asInstanceOf[Option[mutable.ParHashSet[VisitHis]]]
     val searchInfo = Feature.extract(seq, classOf[SearchInfo]).asInstanceOf[Option[SearchInfo]]
     if (searchStream != None && visitedFeature != None && searchInfo != None) {
       val s = searchStream.get

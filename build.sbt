@@ -12,7 +12,8 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
   "org.apache.commons" % "commons-dbcp2" % "2.0.1",
   "org.xerial" % "sqlite-jdbc" % "3.8.11.1",
-  "com.rockymadden.stringmetric" % "stringmetric-core_2.10" % "0.27.2"
+  "com.rockymadden.stringmetric" % "stringmetric-core_2.10" % "0.27.2",
+  "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2"
 )
 
 parallelExecution in Test := false
