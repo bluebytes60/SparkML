@@ -1,14 +1,14 @@
 package avito
 
-import avito.dao.{AdsInfo, SearchStream, SearchInfo}
+import avito.dao.{SearchInfo, SearchStream}
 import featureSelection.ChiSquare
 import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 /**
   * Created by bluebyte60 on 1/26/16.
   */
-object TextFeatureSelection {
+object TextFeatureSelection2 {
   def main(args: Array[String]) {
     val startTime = System.currentTimeMillis();
 
@@ -47,7 +47,7 @@ object TextFeatureSelection {
     queryFeatures.saveAsTextFile(args(2))
     val endTime = System.currentTimeMillis();
 
-    println(startTime - endTime)
+    println("time spent:"+(endTime - startTime))
     print(rawSearchStream.count())
   }
 

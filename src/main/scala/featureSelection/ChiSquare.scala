@@ -1,6 +1,5 @@
-package avito.features
+package featureSelection
 
-import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -16,30 +15,7 @@ import scala.reflect.io.File
 object ChiSquare {
 
 
-
-  def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setAppName("chisquare").setMaster("local[2]")
-    val sc = new SparkContext(conf)
-
-    val stopf = sc.wholeTextFiles("data/stopwords/").flatMap { case (filename, content) => content.split("\r\n") }.collect().toList
-    val stopwords = sc.broadcast(HashSet() ++ stopf).value
-
-    val inputDir = sc.textFile("data/reuters/train")
-    val data = inputDir.map(line => {
-      var tokons: List[String] = List("")
-      for (term <- line.split("\\s+")) {
-        val t = term.trim
-        if (t.length > 2 && !stopwords.contains(t))
-          tokons = tokons :+ t
-      }
-      tokons
-    })
-
-    val r = calculate(data, stopwords)
-    //r.saveAsTextFile("ff")
-  }
-
-  def calculate(data: RDD[List[String]], stopwords: Set[String]): RDD[(String, Double)] = {
+  def calculate(data: RDD[List[String]], minSupport: Int): RDD[(String, Double)] = {
 
     //1. Get total frequency
     val N = data.flatMap(tokon => {
@@ -49,7 +25,7 @@ object ChiSquare {
     //2. Get frequency map given a term, (key: term, value: frequency)
     val T = data.flatMap(tokons => {
       tokons.map(x => (x, 1))
-    }).reduceByKey(_ + _, 1).filter { case (k, v) => v >= 5 }
+    }).reduceByKey(_ + _, 1).filter { case (k, v) => v > minSupport }
 
     //3. Get frequency map given a category, (key:category, value: frequency)
     val C = data.map(tokons => tokons(0)).map(cat => (cat, 1)).reduceByKey(_ + _, 1).cache().collectAsMap()

@@ -4,7 +4,7 @@ import java.io.{File, IOException}
 
 import avito.Transform.Trans
 import avito.dao._
-import avito.features.{PriorClicks, CatAvgPrice, ChiSquare, Feature}
+import avito.features.{PriorClicks, CatAvgPrice, Feature}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 
@@ -16,31 +16,6 @@ import scalax.file.Path
 
 
 object Preprocess {
-  val shouldSave = true
-  val dir = "s3://chiachuanwu/avito/"
-  val adsInfoFile = dir + "AdsInfo.tsv"
-  val categoryFile = dir + "Category.tsv"
-  val locationFile = dir + "Location.tsv"
-  val phoneStreamFile = dir + "PhoneRequestsStream.tsv"
-  val visitsStreamFile = dir + "VisitsStream.tsv"
-  val searchInfoFile = dir + "SearchInfo.tsv"
-  val userInfoFile = dir + "UserInfo.tsv"
-  val trainSearchStreamFile = dir + "trainSearchStream.tsv"
-  val chiFeature = dir + "chi"
-  val tiitleFeature = dir + "title"
-  val paraFeatures = dir + "paras"
-
-
-  def OverwriteWhenSave(rdd: RDD[String], savePath: String): Unit = {
-
-    val path = Path.fromString(savePath)
-    try {
-      path.deleteRecursively(continueOnFailure = true)
-      rdd.saveAsTextFile(savePath)
-    } catch {
-      case e: IOException => // some file could not be deleted
-    }
-  }
 
   def rmFirst(data: RDD[String]): RDD[String] = {
     data.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
@@ -48,7 +23,20 @@ object Preprocess {
 
   def main(args: Array[String]) {
 
-    val conf = new SparkConf().setAppName("Preprocess")
+    val dir = args(0)
+    val adsInfoFile = dir + "AdsInfo.tsv"
+    val categoryFile = dir + "Category.tsv"
+    val locationFile = dir + "Location.tsv"
+    val phoneStreamFile = dir + "PhoneRequestsStream.tsv"
+    val visitsStreamFile = dir + "VisitsStream.tsv"
+    val searchInfoFile = dir + "SearchInfo.tsv"
+    val userInfoFile = dir + "UserInfo.tsv"
+    val trainSearchStreamFile = dir + "trainSearchStream.tsv"
+    val chiFeature = dir + "chi"
+    val tiitleFeature = dir + "title"
+    val paraFeatures = dir + "paras"
+
+    val conf = new SparkConf().setAppName("Preprocess").setMaster("local[2]")
 
     val sc = new SparkContext(conf)
 
@@ -56,9 +44,9 @@ object Preprocess {
 
     hadoopConf.set("fs.s3.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
 
-    hadoopConf.set("fs.s3.awsAccessKeyId", args(0))
+    hadoopConf.set("fs.s3.awsAccessKeyId", args(1))
 
-    hadoopConf.set("fs.s3.awsSecretAccessKey", args(1))
+    hadoopConf.set("fs.s3.awsSecretAccessKey", args(2))
 
     val adsInfos = AdsInfo.parse(rmFirst(sc.textFile(adsInfoFile)))
 
@@ -70,15 +58,15 @@ object Preprocess {
 
     val searchLocations = Location.parseSearchLocation(rmFirst(sc.textFile(locationFile)))
 
-    val phoneStream = ContactStream.parsePhone(rmFirst(sc.textFile(phoneStreamFile)))
+    val phoneStream = ContactStream.parsePhone(rmFirst(sc.textFile(phoneStreamFile,5000)))
 
-    val visitStream = ContactStream.parseVisit(rmFirst(sc.textFile(visitsStreamFile)))
+    val visitStream = ContactStream.parseVisit(rmFirst(sc.textFile(visitsStreamFile,5000)))
 
-    val searchInfos = SearchInfo.parse(rmFirst(sc.textFile(searchInfoFile)))
+    val searchInfos = SearchInfo.parse(rmFirst(sc.textFile(searchInfoFile,5000)))
 
     val userInfo = UserInfo.parse(rmFirst(sc.textFile(userInfoFile)))
 
-    val trainSearchStream = SearchStream.parse(rmFirst(sc.textFile(trainSearchStreamFile))).filter(s => s.ObjectType.equals("3"))
+    val trainSearchStream = SearchStream.parse(rmFirst(sc.textFile(trainSearchStreamFile,5000))).filter(s => s.ObjectType.equals("3"))
 
     val query = Feature.readFromfile(chiFeature, sc, 1000)
 
@@ -119,7 +107,7 @@ object Preprocess {
     }.map { case (isClick, seq) => (String.format("(%s,[%s])", isClick.toString, seq mkString ","))
     }
 
-    r.saveAsTextFile(dir + args(2))
+    r.saveAsTextFile(args(3))
 
     //-------------------------------------------------------------------------//
   }
